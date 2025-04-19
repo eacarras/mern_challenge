@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import Header from './components/Header'
+
 import Container from 'react-bootstrap/Container'
+import Spinner from 'react-bootstrap/Spinner'
+
 import Form from 'react-bootstrap/Form'
 import FileTable from './components/FileTable'
 
@@ -9,25 +12,35 @@ const API_URL = 'http://localhost:5001/files'
 function App () {
   const [fileList, setFileList] = useState([])
   const [selectedFile, setSelectedFile] = useState('')
+  const [loading, setLoading] = useState(true)
   const [data, setData] = useState([])
 
-  // Obtener lista de archivos
+  const fetchData = async (fileName = '') => {
+    setLoading(true)
+    try {
+      const [filesRes, dataRes] = await Promise.all([
+        fetch(`${API_URL}/list`).then(res => res.json()),
+        fetch(`${API_URL}/data${fileName ? `?fileName=${fileName}` : ''}`).then(res => res.json())
+      ])
+      setFileList(filesRes.files)
+      setData(dataRes)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Carga inicial
   useEffect(() => {
-    fetch(`${API_URL}/list`)
-      .then(res => res.json())
-      .then(json => setFileList(json.files))
-      .catch(console.error)
+    fetchData()
   }, [])
 
+  // Cuando cambia el filtro
   useEffect(() => {
-    const url = selectedFile
-      ? `${API_URL}/data?fileName=${selectedFile}`
-      : `${API_URL}/data`
-
-    fetch(url)
-      .then(res => res.json())
-      .then(json => setData(json))
-      .catch(console.error)
+    if (fileList.length) {
+      fetchData(selectedFile)
+    }
   }, [selectedFile])
 
   return (
@@ -49,7 +62,14 @@ function App () {
           </Form.Select>
         </Form.Group>
 
-        <FileTable data={data} />
+        {loading ? (
+          <div className="text-center my-5">
+            <Spinner animation="border" role="status" />
+            <div className="mt-2">Cargando datos...</div>
+          </div>
+        ) : (
+          <FileTable data={data} />
+        )}
       </Container>
     </>
   )
