@@ -1,0 +1,30 @@
+# Node modules
+node_modules
+**/node_modules
+
+# Logs
+*.log
+logs
+
+# Build outputs
+dist
+build
+**/dist
+**/build
+
+# Coverage
+coverage
+.nyc_output
+
+# Env files
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.swp
+*.tgz
+*.local
