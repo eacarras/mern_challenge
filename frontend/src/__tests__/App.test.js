@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import App from '../App'
 
@@ -26,16 +26,13 @@ test('renderiza el header y la lista de archivos por defecto', async () => {
     .mockResolvedValueOnce({ json: () => Promise.resolve(mockFileList) }) // /files/list
     .mockResolvedValueOnce({ json: () => Promise.resolve(mockData) })     // /files/data
 
-  render(<App />)
+  await act(async () => {
+    render(<App />)
+  })
 
-  // Verifica header
   expect(await screen.findByText('React Test App')).toBeInTheDocument()
-
-  // Verifica opciones del selector
   expect(await screen.findByRole('option', { name: '-- Ver todos --' })).toBeInTheDocument()
   expect(await screen.findByRole('option', { name: 'file1.csv' })).toBeInTheDocument()
-
-  // Verifica que se renderiza una fila
   expect(await screen.findByText('ABC')).toBeInTheDocument()
 })
 
@@ -55,17 +52,52 @@ test('cambia los datos al seleccionar un archivo diferente', async () => {
   ]
 
   fetch
-    .mockResolvedValueOnce({ json: () => Promise.resolve(mockFileList) })      // /files/list
-    .mockResolvedValueOnce({ json: () => Promise.resolve(mockInitialData) })   // /files/data
+    .mockResolvedValueOnce({ json: () => Promise.resolve(mockFileList) })      // /files/list (inicio)
+    .mockResolvedValueOnce({ json: () => Promise.resolve(mockInitialData) })   // /files/data (inicio)
+    .mockResolvedValueOnce({ json: () => Promise.resolve(mockFileList) })      // /files/list (filtro)
     .mockResolvedValueOnce({ json: () => Promise.resolve(mockFilteredData) })  // /files/data?fileName=file2.csv
 
-  render(<App />)
+  await act(async () => {
+    render(<App />)
+  })
 
   expect(await screen.findByText('ABC')).toBeInTheDocument()
 
-  fireEvent.change(screen.getByLabelText(/filtrar por archivo/i), {
-    target: { value: 'file2.csv' }
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText(/filtrar por archivo/i), {
+      target: { value: 'file2.csv' }
+    })
   })
 
   expect(await screen.findByText('DEF')).toBeInTheDocument()
+})
+
+test('muestra spinner durante carga inicial', async () => {
+  const mockFileList = { files: ['file1.csv'] }
+  const mockData = [
+    {
+      file: 'file1.csv',
+      lines: [{ text: 'ABC', number: 123, hex: 'hex1' }]
+    }
+  ]
+
+  let listResolve, dataResolve
+  const listPromise = new Promise(resolve => { listResolve = () => resolve(mockFileList) })
+  const dataPromise = new Promise(resolve => { dataResolve = () => resolve(mockData) })
+
+  fetch
+    .mockImplementationOnce(() => Promise.resolve({ json: () => listPromise })) // /files/list
+    .mockImplementationOnce(() => Promise.resolve({ json: () => dataPromise })) // /files/data
+
+  await act(async () => {
+    render(<App />)
+  })
+
+  expect(await screen.findByText('Cargando datos...')).toBeInTheDocument()
+
+  // Resolver manualmente las promesas
+  await act(async () => {
+    listResolve()
+    dataResolve()
+  })
 })
