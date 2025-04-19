@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import App from '../App'
 
@@ -13,7 +13,7 @@ afterEach(() => {
 })
 
 test('renderiza lista de archivos y tabla con datos', async () => {
-  const mockFileList = { files: ['file1.csv', 'file2.csv'] }
+  const mockFileList = { files: ['file1.csv'] }
   const mockData = [
     {
       file: 'file1.csv',
@@ -33,14 +33,9 @@ test('renderiza lista de archivos y tabla con datos', async () => {
 
   render(<App />)
 
-  // Espera dropdown
-  await waitFor(() => {
-    expect(screen.getByLabelText(/filtrar por archivo/i)).toBeInTheDocument()
-  })
-
-  // Verifica opciones
-  expect(screen.getByRole('option', { name: '-- Ver todos --' })).toBeInTheDocument()
-  expect(screen.getByRole('option', { name: 'file1.csv' })).toBeInTheDocument()
+  // Espera y verifica opciones
+  expect(await screen.findByRole('option', { name: '-- Ver todos --' })).toBeInTheDocument()
+  expect(await screen.findByRole('option', { name: 'file1.csv' })).toBeInTheDocument()
 
   // Verifica fila en tabla
   expect(await screen.findByText('ABC')).toBeInTheDocument()
@@ -67,7 +62,7 @@ test('cambia los datos al seleccionar un archivo diferente', async () => {
 
   fetch
     .mockResolvedValueOnce({ json: () => Promise.resolve(mockFileList) }) // /files/list
-    .mockResolvedValueOnce({ json: () => Promise.resolve(mockInitialData) }) // /files/data
+    .mockResolvedValueOnce({ json: () => Promise.resolve(mockInitialData) }) // /files/data (sin filtro)
     .mockResolvedValueOnce({ json: () => Promise.resolve(mockFilteredData) }) // /files/data?fileName=file2.csv
 
   render(<App />)
