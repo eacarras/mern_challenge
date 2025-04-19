@@ -1,7 +1,5 @@
 # MERN Full Stack Challenge
 
-Este proyecto es la solución a un **code challenge para Tech Lead Full Stack (MERN)**.
-
 La aplicación consiste en un **backend Node.js + Express** que consume una API externa, procesa archivos `.csv`, y expone los datos a través de una API REST. A su vez, un **frontend en React + React Bootstrap** permite visualizar esta información y filtrarla por nombre de archivo.
 
 ---
