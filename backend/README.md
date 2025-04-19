@@ -33,7 +33,25 @@ npm start
 npm run dev
 ```
 
-### 🧪 Correr tests
+---
+
+## 🧪 Correr tests
+
+Los tests están escritos usando **Mocha + Chai + Sinon**, y utilizan **mocking con `sinon`** para interceptar las llamadas HTTP realizadas con `axios`.
+
+Esto permite:
+
+- Simular la API externa de forma controlada
+- Asegurar que los tests sean rápidos y estables
+- Cubrir múltiples escenarios: éxito, errores, archivos malformados, filtrado
+
+### 📦 Instalar dependencias de test
+
+```bash
+npm install --save-dev mocha chai chai-http sinon
+```
+
+### ▶️ Correr los tests
 
 ```bash
 npm test
@@ -44,9 +62,9 @@ npm test
 ## ✅ Qué hay implementado
 
 - Consumo seguro de API externa con `axios`
-- Parser de CSV robusto con `csv-parse`
-- Validación de datos malformados
+- Parser de CSV robusto con `csv-parse` y validación de columnas
 - Filtro por `fileName`
 - Endpoint `/files/list`
-- Tests unitarios con `Mocha + Chai`
+- Manejo de errores y archivos inválidos
+- Tests unitarios robustos con mocks
 - Dockerfile listo para producción/desarrollo
