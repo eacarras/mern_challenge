@@ -3,6 +3,7 @@ import Container from 'react-bootstrap/Container'
 import Form from 'react-bootstrap/Form'
 import FileTable from './components/FileTable'
 
+const API_URL = 'http://localhost:5001/files'
 function App () {
   const [fileList, setFileList] = useState([])
   const [selectedFile, setSelectedFile] = useState('')
@@ -10,7 +11,7 @@ function App () {
 
   // Obtener lista de archivos
   useEffect(() => {
-    fetch('/files/list')
+    fetch(`${API_URL}/list`)
       .then(res => res.json())
       .then(json => setFileList(json.files))
       .catch(console.error)
@@ -19,8 +20,8 @@ function App () {
   // Obtener datos filtrados
   useEffect(() => {
     const url = selectedFile
-      ? `/files/data?fileName=${selectedFile}`
-      : '/files/data'
+      ? `${API_URL}/data?fileName=${selectedFile}`
+      : `${API_URL}/data`
 
     fetch(url)
       .then(res => res.json())

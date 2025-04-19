@@ -11,10 +11,7 @@ module.exports = {
   devServer: {
     static: './dist',
     port: 3000,
-    historyApiFallback: true,
-    proxy: {
-      '/files': 'http://localhost:5000' // redirige llamadas al backend en dev
-    }
+    historyApiFallback: true
   },
   module: {
     rules: [

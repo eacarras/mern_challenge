@@ -1,10 +1,10 @@
 const axios = require('axios')
-const parse = require('csv-parse/lib/sync')
+const { parse } = require('csv-parse/sync')
 
 const API_URL = 'https://echo-serv.tbxnet.com/v1/secret'
 const AUTH_HEADER = { Authorization: 'Bearer aSuperSecretKey' }
 
-async function getFilesData (fileNameFilter) {
+async function getFilesData(fileNameFilter) {
   let fileList = []
 
   try {
@@ -15,7 +15,7 @@ async function getFilesData (fileNameFilter) {
   }
 
   if (fileNameFilter && !fileList.includes(fileNameFilter)) {
-    return [] // devuelve vacío si no existe
+    return []
   }
 
   const validFiles = []
@@ -27,7 +27,8 @@ async function getFilesData (fileNameFilter) {
       const res = await axios.get(`${API_URL}/file/${file}`, { headers: AUTH_HEADER })
       const parsed = parse(res.data, {
         columns: true,
-        skip_empty_lines: true
+        skip_empty_lines: true,
+        relax_column_count: true // Permitir líneas con columnas incompletas
       })
 
       const lines = parsed.filter(line =>
@@ -38,16 +39,18 @@ async function getFilesData (fileNameFilter) {
         hex: line.hex
       }))
 
-      validFiles.push({ file, lines })
+      if (lines.length > 0) {
+        validFiles.push({ file, lines })
+      }
     } catch (err) {
-      // si un archivo falla, lo ignoramos
+      console.error(`Error al procesar el archivo ${file}:`, err.message)
     }
   }
 
   return validFiles
 }
 
-async function getFileList () {
+async function getFileList() {
   try {
     const res = await axios.get(`${API_URL}/files`, { headers: AUTH_HEADER })
     return res.data.files || []
@@ -55,7 +58,6 @@ async function getFileList () {
     throw new Error('No se pudo obtener la lista de archivos')
   }
 }
-
 
 module.exports = {
   getFilesData,
