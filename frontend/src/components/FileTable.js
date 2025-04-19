@@ -2,6 +2,10 @@ import React from 'react'
 import Table from 'react-bootstrap/Table'
 
 function FileTable ({ data }) {
+  if (!data || data.length === 0) {
+    return <p>No hay resultados disponibles.</p>
+  }
+
   return (
     <Table striped bordered hover responsive>
       <thead>
