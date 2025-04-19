@@ -1,0 +1,43 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+
+# Env
+.env
+.env.*
+
+# Docker
+*.local
+docker-compose.override.yml
+
+# IDEs y editores
+.vscode/
+.idea/
+
+# Coverage y testing
+coverage/
+.nyc_output/
+jest-test-results.json
+
+# Frontend y backend builds
+frontend/dist/
+backend/dist/
+
+# Misc
+*.tgz
+*.swp
