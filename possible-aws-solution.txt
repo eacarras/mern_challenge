@@ -1,0 +1,33 @@
+🚀 Despliegue en la Nube - MERN Challenge (AWS Monolito)
+
+Este documento detalla las mejores prácticas y pasos recomendados para desplegar esta aplicación MERN en un entorno de nube con arquitectura de monolito sobre AWS.
+
+Arquitectura Propuesta (Monolito en AWS):
+
+[Internet]
+|
+[ALB (Application Load Balancer)]
+|
+[EC2 Instancia única con Docker Compose]
+|
+[Contenedor Backend (Express)] -- (consume API externa)
+[Contenedor Frontend (React)]
+
+Se usa una sola instancia EC2 que ejecuta ambos servicios usando Docker Compose.
+El frontend y backend están contenidos y comunicados localmente (localhost).
+
+Se expone el puerto 3000 (frontend) al ALB.
+
+Buenas Prácticas Generales:
+
+- Separación de responsabilidades: aunque sea monolito, mantenemos /backend y /frontend independientes.
+- Dockerizado: fácil de escalar y reproducir el entorno en desarrollo/staging.
+- Docker Compose: define dependencias entre servicios.
+- Variables de entorno: usar .env o parámetros de ECS/EC2 con secretos.
+- Seguridad:
+  - Bloquear acceso al backend directo con firewall o configurar nginx reverse proxy.
+  - HTTPS en el ALB o usar certificados de ACM.
+- Logs:
+  - Redirigir logs de contenedores a CloudWatch usando awslogs driver o script manual.
+- Monitoreo:
+  - Activar CloudWatch Metrics + crear alarmas básicas.
