@@ -5,10 +5,22 @@ const API_URL = 'https://echo-serv.tbxnet.com/v1/secret'
 const AUTH_HEADER = { Authorization: 'Bearer aSuperSecretKey' }
 
 async function getFilesData (fileNameFilter) {
-  const files = await axios.get(`${API_URL}/files`, { headers: AUTH_HEADER })
+  let fileList = []
+
+  try {
+    const response = await axios.get(`${API_URL}/files`, { headers: AUTH_HEADER })
+    fileList = response.data.files
+  } catch (err) {
+    throw new Error('Failed to fetch file list')
+  }
+
+  if (fileNameFilter && !fileList.includes(fileNameFilter)) {
+    return [] // devuelve vacío si no existe
+  }
+
   const validFiles = []
 
-  for (const file of files.data.files) {
+  for (const file of fileList) {
     if (fileNameFilter && file !== fileNameFilter) continue
 
     try {
@@ -28,11 +40,24 @@ async function getFilesData (fileNameFilter) {
 
       validFiles.push({ file, lines })
     } catch (err) {
-      // ignorar archivos con error
+      // si un archivo falla, lo ignoramos
     }
   }
 
   return validFiles
 }
 
-module.exports = { getFilesData }
+async function getFileList () {
+  try {
+    const res = await axios.get(`${API_URL}/files`, { headers: AUTH_HEADER })
+    return res.data.files || []
+  } catch (err) {
+    throw new Error('No se pudo obtener la lista de archivos')
+  }
+}
+
+
+module.exports = {
+  getFilesData,
+  getFileList
+}
